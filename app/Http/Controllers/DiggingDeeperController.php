@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessVideoJob;
+use App\Jobs\GenerateCatalog\GenerateCatalogMainJob;
 use App\Models\BlogPost;
 use Carbon\Carbon;
 
@@ -18,7 +20,23 @@ class DiggingDeeperController extends Controller
      * @url https://laravel.com/api/11.x/Illuminate/Database/Eloquent/Collection.html
      *
      */
-
+    public function processVideo()
+    {
+        ProcessVideoJob::dispatch();
+        // Відкладення виконання завдання від моменту потрапляння в чергу.
+        // Не впливає на паузу між спробами виконання завдання.
+        //->delay(10)
+        //->onQueue('name_of_queue')
+    }
+    /**
+     * @link http://localhost:8000/digging_deeper/prepare-catalog
+     *
+     * php artisan queue:listen --queue=generate-catalog --tries=3 --delay=10
+     */
+    public function prepareCatalog()
+    {
+        GenerateCatalogMainJob::dispatch();
+    }
     public function collections()
     {
         $result = [];
@@ -35,11 +53,11 @@ class DiggingDeeperController extends Controller
          */
         $collection = collect($eloquentCollection->toArray());
 
-        /* dd(
+         dd(
              get_class($eloquentCollection),
              get_class($collection),
              $collection
-         );*/
+         );
 
 
         $result['first'] = $collection->first(); //вибираємо 1 елемент
@@ -75,7 +93,7 @@ class DiggingDeeperController extends Controller
 
         $result['map']['not_exists'] = $result['map']['all']->where('exists', '=', false)->values()->keyBy('item_id');  //витягаємо видалені елементи
 
-        //dd ($result);
+        dd ($result);
 
         //Базова змінна змінюється (трансформується).
         $collection->transform(function ($item) {
@@ -88,7 +106,7 @@ class DiggingDeeperController extends Controller
             return $newItem;
         });
 
-        //dd ($collection);
+        dd ($collection);
 
         $newItem = new \stdClass;
         $newItem->id = 9999;
@@ -96,7 +114,7 @@ class DiggingDeeperController extends Controller
         $newItem2 = new \stdClass;
         $newItem2->id = 8888;
 
-        //dd ($newItem, $newItem2);
+        dd ($newItem, $newItem2);
 
         //Додаємо елемент в початок/кінець колекції
         $newItemFirst = $collection->prepend($newItem)->first(); //додали в початок

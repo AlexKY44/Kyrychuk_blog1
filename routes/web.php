@@ -2,6 +2,7 @@
 use App\Http\Controllers\RestTestController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DiggingDeeperController;
+use App\Http\Controllers\Blog\PostController;
 
 Route::group([ 'namespace' => 'App\Http\Controllers\Blog', 'prefix' => 'blog'], function () {
     Route::resource('posts', PostController::class)->names('blog.posts');
@@ -27,8 +28,14 @@ Route::group($groupData, function () {
         Route::get('collections', [DiggingDeeperController::class, 'collections'])
 
             ->name('digging_deeper.collections');
+        Route::get('process-video', [DiggingDeeperController::class, 'processVideo'])
+            ->name('digging_deeper.processVideo');
 
-    });
+        Route::get('prepare-catalog', 'DiggingDeeperController@prepareCatalog')
+            ->name('digging_deeper.prepareCatalog');
+
+    })
+    ;
     //BlogPost
     Route::resource('posts', PostController::class)
         ->except(['show'])                               //не робити маршрут для метода show
