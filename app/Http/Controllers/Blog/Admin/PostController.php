@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Blog\Admin;
 
+use App\Jobs\BlogPostAfterCreateJob;
+use App\Jobs\BlogPostAfterDeleteJob;
 use App\Models\BlogPost;
 use App\Http\Requests\BlogPostCreateRequest;
 use App\Repositories\BlogPostRepository;
@@ -67,6 +69,9 @@ class PostController extends BaseController
                 ->withErrors(['msg' => 'Помилка збереження'])
                 ->withInput();
         }
+        $job = new BlogPostAfterCreateJob($item);
+        $this->dispatch($job);
+
     }
 
     /**
@@ -137,5 +142,6 @@ class PostController extends BaseController
             return back()
                 ->withErrors(['msg' => 'Помилка видалення']);
         }
+        BlogPostAfterDeleteJob::dispatch($id)->delay(20);
     }
 }
