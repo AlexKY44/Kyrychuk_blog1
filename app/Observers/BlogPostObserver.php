@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Observers;
-
+use Carbon\Carbon;
 use App\Models\BlogPost;
 
 class BlogPostObserver
